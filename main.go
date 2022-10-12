@@ -13,7 +13,7 @@ import (
 
 func main() {
 	// defer dbutil.Close() // initialize DB before any request
-	go hub.H.Run() // initializ the hub
+	go hub.H.Run() // initialize the hub
 	initInt()      // mapping for internal apis
 	initExt()      // mapping for external apis
 }
@@ -37,6 +37,6 @@ func initInt() {
 
 // add routes to given gin router
 func router(r *gin.RouterGroup) {
-	r.POST("/message", api.SendMsg)
-	r.GET("/ws", api.WS)
+	r.POST("/message", api.SendMsg) // http post method
+	r.GET("/ws", api.WS)            // get method proxy for websocket
 }

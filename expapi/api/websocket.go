@@ -43,7 +43,6 @@ func WS(ctx *gin.Context) {
 	start := time.Now()
 	ip := ctx.ClientIP()
 	tid := cms.Tid(ctx)
-
 	// upgrade HTTP connection to a websocket
 	conn, err := cms.Upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
