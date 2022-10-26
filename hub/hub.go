@@ -3,7 +3,7 @@ package hub
 import "log"
 
 var H = Hub{
-	Broadcast: make(chan Payload),
+	Broadcast: make(chan Msg),
 	Reg:       make(chan *Cli),
 	UnReg:     make(chan *Cli),
 	Topics:    make(map[string]map[*Cli]bool),
@@ -41,23 +41,16 @@ func (h *Hub) Run() {
 				}
 			}
 
-		case p := <-h.Broadcast: // broadcast message to all clients subscribing to same topic
-			clients := h.Topics[p.Topic] // get clients subscribed to given message's topic
+		case m := <-h.Broadcast: // broadcast message to all clients subscribing to same topic
+			clients := h.Topics[m.Topic] // get clients subscribed to given message's topic
 			for c := range clients {     // for each client subscribed to topic
 				cadr := c.Conn.RemoteAddr().String()
 				select {
-				case c.Send <- p: // send message to client's send channel
-					log.Printf("[hub.Hub.Run::OK Broadcasted message [tid=%s [topic=%s [client=%s [clients_registered=%d", c.tid, p.Topic, cadr, H.GetClients())
+				case c.Send <- m: // send message to client's send channel
+					log.Printf("[hub.Hub.Run::OK Broadcasted message [tid=%s [topic=%s [client=%s [clients_registered=%d", c.tid, m.Topic, cadr, H.GetClients())
 				default: // if send channel of the client is not receiving
-					log.Printf("[hub.Hub.Run::KO Failed to broadcast message [tid=%s [topic=%s [client=%s [clients_registered=%d", c.tid, p.Topic, cadr, H.GetClients())
-					close(c.Send)      // close client's send channel
-					delete(clients, c) // remove client from topic's map of clients
-					h.RemoveClient(1)  // decrement number of clients connected to hub
-					log.Printf("[hub.Hub.Run:: Unregistered client [tid=%s [topic=%s [client=%s [clients_registered=%d", c.tid, p.Topic, cadr, H.GetClients())
-					if len(clients) == 0 { // if no clients left for topic
-						delete(h.Topics, p.Topic) // remove topic from hub map of topics
-						log.Printf("[hub.Hub.Run:: Removed topic [tid=%s [topic=%s [clients_registered=%d", c.tid, p.Topic, H.GetClients())
-					}
+					log.Printf("[hub.Hub.Run::KO Failed to broadcast message [tid=%s [topic=%s [client=%s [clients_registered=%d", c.tid, m.Topic, cadr, H.GetClients())
+					h.UnReg <- c // unregister client from hub
 				}
 			}
 		}

@@ -9,14 +9,14 @@ import (
 )
 
 // write JSON message from the hub to the client
-func (c *Cli) WriteJSON(payload Payload) error {
-	c.Conn.SetWriteDeadline(time.Now().Add(cms.WriteWait)) // set write deadline
+func (c *Cli) WriteJSON(payload Msg) error {
+	c.Conn.SetWriteDeadline(time.Now().Add(cms.WriteWait)) // update write deadline
 	return c.Conn.WriteJSON(payload)
 }
 
 // write messages from the hub to the client
 func (c *Cli) Write(mt int, data []byte) error {
-	c.Conn.SetWriteDeadline(time.Now().Add(cms.WriteWait)) // set write deadline
+	c.Conn.SetWriteDeadline(time.Now().Add(cms.WriteWait)) // update write deadline
 	return c.Conn.WriteMessage(mt, data)
 }
 

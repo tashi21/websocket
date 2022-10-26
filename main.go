@@ -38,5 +38,5 @@ func initInt() {
 // add routes to given gin router
 func router(r *gin.RouterGroup) {
 	r.POST("/message", api.SendMsg) // http post method
-	r.GET("/ws", api.WS)            // get method proxy for websocket
+	r.GET("/ws/:topic", api.WS)     // get method proxy for websocket
 }
